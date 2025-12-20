@@ -272,7 +272,7 @@ async def trigger_gas_alert():
 
     # 2. Check: Did we JUST talk to the user? (Smart Mute)
     # If user picked up in last 15 minutes (900s), believe they are fixing it.
-    if (current_time - call_state["last_success_time"]) < 900:
+    if (current_time - call_state["last_success_time"]) < 10:
         # print("🛡️ IGNORING ALERT: User already acknowledged.") <--- Silenced
         return {"status": "ignored", "reason": "already_acknowledged"}
 
@@ -289,5 +289,6 @@ async def trigger_gas_alert():
     return await make_outbound_call(
         customer_name="Azfar", language="urdu", number=TARGET_NUMBER
     )
+
 
 
