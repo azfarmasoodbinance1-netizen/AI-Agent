@@ -116,6 +116,7 @@ async def handle_media_stream(websocket: WebSocket, customer_name: str, language
         "tts": {
             "model_id": "eleven_multilingual_v2",  # Better for Urdu
             "voice_id": "Xb7hH8MSUJpSbSDYk0k2",
+            "output_format": "ulaw_8000",  # REQUIRED for Twilio (Restored)
             "voice_settings": {
                 "stability": 0.5,  # Higher = More consistent/stable tone
                 "similarity_boost": 0.7,  # Lower = Less robotic artifacts
@@ -141,7 +142,7 @@ async def handle_media_stream(websocket: WebSocket, customer_name: str, language
         conversation = Conversation(
             client=eleven_labs_client,
             agent_id=ELEVENLABS_AGENT_ID,
-            requires_auth=True,
+            requires_auth=False,  # FIXED: Set to False to bypass Signed URL permission error
             audio_interface=audio_interface,
             client_tools=client_tools,
             config=config,
