@@ -115,7 +115,7 @@ async def handle_media_stream(websocket: WebSocket, customer_name: str, language
         # "tts": {"voice_id": "Xb7hH8MSUJpSbSDYk0k2"},  <-- Enabled now (User turned on Override)
         "tts": {
             "model_id": "eleven_multilingual_v2",  # Better for Urdu
-            "voice_id": "Xb7hH8MSUJpSbSDYk0k2",
+            "voice_id": "WkVhWA2EqSfUAWAZG7La",
             "output_format": "ulaw_8000",  # REQUIRED for Twilio (Restored)
             "voice_settings": {
                 "stability": 0.5,  # Higher = More consistent/stable tone
@@ -289,3 +289,4 @@ async def trigger_gas_alert():
     return await make_outbound_call(
         customer_name="Azfar", language="urdu", number=TARGET_NUMBER
     )
+
