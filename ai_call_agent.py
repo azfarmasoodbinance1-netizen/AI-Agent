@@ -111,13 +111,13 @@ async def handle_media_stream(
                     "You are 'Ahmed', a smart home safety assistant. "
                     "A CRITICAL GAS LEAK has been detected in the kitchen. "
                     f"CURRENT GAS LEVEL IS: {reading} (Normal is <50). "
-                    "Your goal is to warn the user (Azfar) immediately in Roman Urdu/English mix. "
+                    "Your goal is to warn the user (Azfar) immediately in Clear English. "
                     "Be urgent, clear, and concise. "
-                    "Example: 'Hello Azfar, Ahmed Speaking. Kitchen mein Gas Leak detect hua hai! Please foran check karein.' "
+                    "Example: 'Hello Azfar, Ahmed Speaking. A Critical Gas Leak has been detected in your kitchen! Please check it immediately.' "
                     "Do not panic, but emphasize urgency. Return to normal tone if user says it's fixed."
                 )
             },
-            "first_message": "Hello Azfar! Ahmed Speaking. Kitchen mein Gas Leak detect hua hai! Please foran check karein.",
+            "first_message": "Hello Azfar! Ahmed Speaking. A Critical Gas Leak has been detected in your kitchen! Please check it immediately.",
             "language": "en",  # 'en' handles Roman Urdu well with Multilingual model
         },
         # "tts": {"voice_id": "Xb7hH8MSUJpSbSDYk0k2"},  <-- Enabled now (User turned on Override)
