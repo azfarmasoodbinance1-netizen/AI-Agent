@@ -64,9 +64,14 @@ async def handle_incoming_call(request: Request):
     )
 
     # Generate a valid TwiML response that starts the <Connect><Stream>
+    reading = request.query_params.get("Reading", "0")  # Extract Reading
+
     response = VoiceResponse()
     connect = Connect()
-    connect.stream(url=f"wss://{ngrok}/media-stream-eleven/{customer_name}/{language}")
+    # Pass reading to WebSocket URL
+    connect.stream(
+        url=f"wss://{ngrok}/media-stream-eleven/{customer_name}/{language}/{reading}"
+    )
     response.append(connect)
 
     # Return the TwiML as XML
@@ -85,8 +90,10 @@ client_tools = ClientTools()
 client_tools.register("triggerBrowserAlert", trigger_browser_alert)
 
 
-@app.websocket("/media-stream-eleven/{customer_name}/{language}")
-async def handle_media_stream(websocket: WebSocket, customer_name: str, language: str):
+@app.websocket("/media-stream-eleven/{customer_name}/{language}/{reading}")
+async def handle_media_stream(
+    websocket: WebSocket, customer_name: str, language: str, reading: str
+):
     """
     WebSocket endpoint for handling media streams dynamically based on customer_name and language.
     """
@@ -103,6 +110,7 @@ async def handle_media_stream(websocket: WebSocket, customer_name: str, language
                 "prompt": (
                     "You are 'Ahmed', a smart home safety assistant. "
                     "A CRITICAL GAS LEAK has been detected in the kitchen. "
+                    f"CURRENT GAS LEVEL IS: {reading} (Normal is <50). "
                     "Your goal is to warn the user (Azfar) immediately in Roman Urdu/English mix. "
                     "Be urgent, clear, and concise. "
                     "Example: 'Hello Azfar, Ahmed Speaking. Kitchen mein Gas Leak detect hua hai! Please foran check karein.' "
@@ -185,7 +193,9 @@ call_state = {
 
 
 @app.post("/twilio/outbound_call")
-async def make_outbound_call(customer_name: str, language: str, number: str):
+async def make_outbound_call(
+    customer_name: str, language: str, number: str, reading: str = "0"
+):
     """
     Initiate an outbound call to the specified target number.
     """
@@ -196,7 +206,8 @@ async def make_outbound_call(customer_name: str, language: str, number: str):
 
     try:
         # Construct the URL that Twilio will request once the call is answered
-        redirect_url = f"https://{ngrok}/twilio/inbound_call?CustomerName={customer_name}&Language={language}"
+        # Pass Reading to inbound handler
+        redirect_url = f"https://{ngrok}/twilio/inbound_call?CustomerName={customer_name}&Language={language}&Reading={reading}"
 
         # Callback to track call status (completed, no-answer, etc.)
         status_callback_url = f"https://{ngrok}/twilio/call-status"
@@ -258,7 +269,7 @@ async def call_status_webhook(request: Request):
 
 # --- SIMPLE ENDPOINT FOR NODEMCU ---
 @app.get("/trigger-gas-alert")
-async def trigger_gas_alert():
+async def trigger_gas_alert(reading: str = "0"):
     """
     Simple endpoint for NodeMCU to call.
     Includes Spam Prevention & Smart Retry Logic.
@@ -287,8 +298,5 @@ async def trigger_gas_alert():
     print("⚠️ GAS ALERT RECEIVED! Initiating Call...")
 
     return await make_outbound_call(
-        customer_name="Azfar", language="urdu", number=TARGET_NUMBER
+        customer_name="Azfar", language="urdu", number=TARGET_NUMBER, reading=reading
     )
-
-
-
