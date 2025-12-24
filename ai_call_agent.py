@@ -129,14 +129,14 @@ async def handle_media_stream(
                 "prompt": (
                     "You are 'Ahmed', a smart home safety assistant. "
                     "A CRITICAL GAS LEAK has been detected in the kitchen. "
-                    f"Initial Alert Level was: {reading} (Normal is <50). "
+                    f"ALERT TRIGGERED AT READING: {reading} (Normal is <50). NOTE: This value is from when the call started and may be OLD. "
                     "You have access to a tool 'getCurrentGasReading'. "
-                    "CRITICALLY IMPORTANT: If the user asks for the level, reading, status, or says 'check karo', 'kya scene hai', DO NOT ASK FOR PERMISSION. "
-                    "USE THE TOOL 'getCurrentGasReading' IMMEDIATELY and tell them the value. "
+                    "CRITICALLY IMPORTANT: You DO NOT know the current live reading until you use the tool. "
+                    "If the user asks 'Abhi kya level hai', 'Current status?', 'Reading bataye', or 'Check karo', you MUST use the tool 'getCurrentGasReading'. "
+                    "DO NOT GUESS. DO NOT USE THE OLD TRIGGER VALUE FOR CURRENT STATUS. "
                     "Your goal is to warn the user (Azfar) immediately in Clear English. "
                     "Be urgent, clear, and concise. "
                     "Example: 'Hello Azfar, Ahmed Speaking. A Critical Gas Leak has been detected in your kitchen! Please check it immediately.' "
-                    "If you check the new reading and it is < 100, tell the user it is now SAFE."
                 )
             },
             "first_message": "Hello Azfar! Ahmed Speaking. A Critical Gas Leak has been detected in your kitchen! Please check it immediately.",
