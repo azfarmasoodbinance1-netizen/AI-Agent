@@ -85,9 +85,28 @@ def trigger_browser_alert(parameters):
     return "Alert triggered successfully"
 
 
+# Function for AI to get real-time gas reading
+def get_current_gas_reading_tool(parameters):
+    # This matches the logic of the /get-current-reading endpoint
+    # But runs internally within the python process
+    reading = gas_reading_state["current_reading"]
+    is_safe = reading < 100
+
+    msg = f"Current Gas Level is {reading}. "
+    if reading < 100:
+        msg += "This is SAFE. "
+    elif reading < 200:
+        msg += "WARNING: Gas level is elevated! "
+    else:
+        msg += "CRITICAL DANGER: Gas leak is severe! "
+
+    return msg
+
+
 # Initialize ClientTools and register the custom tool
 client_tools = ClientTools()
 client_tools.register("triggerBrowserAlert", trigger_browser_alert)
+client_tools.register("getCurrentGasReading", get_current_gas_reading_tool)
 
 
 @app.websocket("/media-stream-eleven/{customer_name}/{language}/{reading}")
@@ -110,11 +129,13 @@ async def handle_media_stream(
                 "prompt": (
                     "You are 'Ahmed', a smart home safety assistant. "
                     "A CRITICAL GAS LEAK has been detected in the kitchen. "
-                    f"CURRENT GAS LEVEL IS: {reading} (Normal is <50). "
+                    f"Initial Alert Level was: {reading} (Normal is <50). "
+                    "You have access to a tool 'getCurrentGasReading'. "
+                    "USE THIS TOOL IMMEDIATELY if the user asks 'Abhi kya level hai?' or 'Current status kya hai?'. "
                     "Your goal is to warn the user (Azfar) immediately in Clear English. "
                     "Be urgent, clear, and concise. "
                     "Example: 'Hello Azfar, Ahmed Speaking. A Critical Gas Leak has been detected in your kitchen! Please check it immediately.' "
-                    "Do not panic, but emphasize urgency. Return to normal tone if user says it's fixed."
+                    "If you check the new reading and it is < 100, tell the user it is now SAFE."
                 )
             },
             "first_message": "Hello Azfar! Ahmed Speaking. A Critical Gas Leak has been detected in your kitchen! Please check it immediately.",
@@ -191,6 +212,13 @@ call_state = {
     "last_success_time": 0.0,  # To track if user actually picked up
 }
 
+# Global Gas Reading State (Real-Time Monitoring)
+gas_reading_state = {
+    "current_reading": 0,
+    "last_update_time": 0.0,
+    "is_alert_active": False,
+}
+
 
 @app.post("/twilio/outbound_call")
 async def make_outbound_call(
@@ -265,6 +293,59 @@ async def call_status_webhook(request: Request):
         print("❌ Call Failed/Missed. System ready for retry.")
 
     return {"status": "ok"}
+
+
+# --- REAL-TIME GAS READING ENDPOINTS ---
+
+
+@app.post("/update-reading")
+async def update_reading(reading: int):
+    """
+    NodeMCU continuously pushes latest gas readings here.
+    This runs in the background during calls.
+    """
+    gas_reading_state["current_reading"] = reading
+    gas_reading_state["last_update_time"] = time.time()
+    gas_reading_state["is_alert_active"] = reading >= 100  # Alert threshold
+
+    # Silent logging (no spam)
+    # print(f"📊 Reading Updated: {reading}")
+
+    return {"status": "updated", "reading": reading}
+
+
+@app.get("/get-current-reading")
+async def get_current_reading():
+    """
+    AI calls this endpoint to get the latest gas reading.
+    This is used during phone conversations for real-time updates.
+    """
+    reading = gas_reading_state["current_reading"]
+    is_safe = reading < 100
+
+    # Determine status message
+    if reading < 50:
+        status = "very_safe"
+        message = f"Gas level is {reading}, which is very safe (normal range)."
+    elif reading < 100:
+        status = "safe"
+        message = f"Gas level is {reading}, which is safe but slightly elevated."
+    elif reading < 200:
+        status = "warning"
+        message = f"Gas level is {reading}, which is in the warning zone. Please check immediately."
+    else:
+        status = "critical"
+        message = (
+            f"Gas level is {reading}, which is CRITICAL! Immediate action required!"
+        )
+
+    return {
+        "reading": reading,
+        "status": status,
+        "is_safe": is_safe,
+        "message": message,
+        "last_update": gas_reading_state["last_update_time"],
+    }
 
 
 # --- SIMPLE ENDPOINT FOR NODEMCU ---
