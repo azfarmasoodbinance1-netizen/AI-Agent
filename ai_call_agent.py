@@ -227,7 +227,17 @@ gas_reading_state = {
     "current_reading": 0,
     "last_update_time": 0.0,
     "is_alert_active": False,
+    "is_alert_active": False,
 }
+
+
+@app.get("/check-call-status")
+async def check_call_status():
+    """
+    Endpoint for NodeMCU to check if a call is currently active.
+    Returns: {"active": true/false}
+    """
+    return {"active": call_state["is_active"]}
 
 
 @app.post("/twilio/outbound_call")
