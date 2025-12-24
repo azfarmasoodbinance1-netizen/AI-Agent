@@ -87,6 +87,11 @@ def trigger_browser_alert(parameters):
 
 # Function for AI to get real-time gas reading
 def get_current_gas_reading_tool(parameters):
+    # Debug: Confirm tool is called
+    print(
+        f"🛠️ AI TOOL CALLED: getCurrentGasReading. Current State: {gas_reading_state['current_reading']}"
+    )
+
     # This matches the logic of the /get-current-reading endpoint
     # But runs internally within the python process
     reading = gas_reading_state["current_reading"]
@@ -129,17 +134,16 @@ async def handle_media_stream(
                 "prompt": (
                     "You are 'Ahmed', a smart home safety assistant. "
                     "A CRITICAL GAS LEAK has been detected in the kitchen. "
-                    f"ALERT TRIGGERED AT READING: {reading} (Normal is <50). NOTE: This value is from when the call started and may be OLD. "
-                    "You have access to a tool 'getCurrentGasReading'. "
-                    "CRITICALLY IMPORTANT: You DO NOT know the current live reading until you use the tool. "
-                    "If the user asks 'Abhi kya level hai', 'Current status?', 'Reading bataye', or 'Check karo', you MUST use the tool 'getCurrentGasReading'. "
-                    "DO NOT GUESS. DO NOT USE THE OLD TRIGGER VALUE FOR CURRENT STATUS. "
-                    "Your goal is to warn the user (Azfar) immediately in Clear English. "
-                    "Be urgent, clear, and concise. "
-                    "Example: 'Hello Azfar, Ahmed Speaking. A Critical Gas Leak has been detected in your kitchen! Please check it immediately.' "
+                    f"Initial Alert Reading: {reading}. "
+                    "You have a tool: 'getCurrentGasReading'. "
+                    "This tool takes no arguments. "
+                    "If user asks for current level/status, USE THE TOOL IMMEDIATELY. "
+                    "Do not ask for permission. Do not explain you are using a tool. "
+                    "Just use it and report the number returned by the tool. "
+                    "Goal: Warn user effectively."
                 )
             },
-            "first_message": "Hello Azfar! Ahmed Speaking. A Critical Gas Leak has been detected in your kitchen! Please check it immediately.",
+            "first_message": "Hello Azfar! Ahmed Speaking. A Critical Gas Leak has been detected. Please check it immediately.",
             "language": "en",  # 'en' handles Roman Urdu well with Multilingual model
         },
         # "tts": {"voice_id": "Xb7hH8MSUJpSbSDYk0k2"},  <-- Enabled now (User turned on Override)
