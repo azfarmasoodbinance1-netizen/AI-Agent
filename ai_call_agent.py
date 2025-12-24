@@ -140,7 +140,6 @@ async def handle_media_stream(
                 "prompt": (
                     "You are 'Ahmed', a smart home safety assistant. "
                     "A CRITICAL GAS LEAK has been detected in the kitchen. "
-                    f"Initial Alert Reading: {reading}. "
                     "You have a tool: 'getCurrentGasReading'. "
                     "This tool takes no arguments. "
                     "If user asks for current level/status, USE THE TOOL IMMEDIATELY. "
