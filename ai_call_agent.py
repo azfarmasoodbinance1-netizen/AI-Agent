@@ -78,13 +78,6 @@ async def handle_incoming_call(request: Request):
     return HTMLResponse(content=str(response), media_type="application/xml")
 
 
-# Function to trigger browser alert
-def trigger_browser_alert(parameters):
-    message = parameters.get("message")
-    print(f"Triggering alert: {message}")
-    return "Alert triggered successfully"
-
-
 # Function for AI to get real-time gas reading
 # Function for AI to get real-time gas reading
 def get_current_gas_reading_tool(parameters):
@@ -136,7 +129,7 @@ def terminate_call_tool(parameters):
 
 # Initialize ClientTools and register the custom tool
 client_tools = ClientTools()
-client_tools.register("triggerBrowserAlert", trigger_browser_alert)
+
 client_tools.register("getCurrentGasReading", get_current_gas_reading_tool)
 client_tools.register("terminateCall", terminate_call_tool)
 
