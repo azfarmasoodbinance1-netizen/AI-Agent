@@ -86,7 +86,14 @@ def trigger_browser_alert(parameters):
 
 
 # Function for AI to get real-time gas reading
+# Function for AI to get real-time gas reading
 def get_current_gas_reading_tool(parameters):
+    """
+    Retrieves the current real-time gas level reading from the sensor.
+    Use this tool immediately when the user asks for the current gas status, level, or reading.
+    Returns a text description of the current level and safety status.
+    This tool takes no arguments.
+    """
     # Debug: Confirm tool is called
     print(
         f"🛠️ AI TOOL CALLED: getCurrentGasReading. Current State: {gas_reading_state['current_reading']}"
@@ -95,15 +102,14 @@ def get_current_gas_reading_tool(parameters):
     # This matches the logic of the /get-current-reading endpoint
     # But runs internally within the python process
     reading = gas_reading_state["current_reading"]
-    is_safe = reading < 100
 
-    msg = f"Current Gas Level is {reading}. "
+    msg = f"The actual live gas level is {reading}. "
     if reading < 100:
-        msg += "This is SAFE. "
+        msg += "This is currently SAFE."
     elif reading < 200:
-        msg += "WARNING: Gas level is elevated! "
+        msg += "WARNING: Gas level is ELEVATED. Please be careful."
     else:
-        msg += "CRITICAL DANGER: Gas leak is severe! "
+        msg += "CRITICAL DANGER: Gas leak is SEVERE! Immediate action required!"
 
     return msg
 
